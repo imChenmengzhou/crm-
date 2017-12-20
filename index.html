@@ -34,7 +34,6 @@
     </div>
 
 <script type="text/javascript" src="js/ajax.js"></script>
-<script type="text/javascript" src="jquery-3.2.1/jquery-3.2.1.min.js"></script>
 <script type="text/javascript">
 	var oList=document.getElementById("list");
 	//首先获取所有的客户信息，完成页面的数据绑定
@@ -91,29 +90,29 @@
 		}
 		//send ajax to get data
 		function init() {
-			// ajax({
-			// 	url:"/getList",
-			// 	success:function (jsonData) {
-			// 		console.log(jsonData);
-			// 		if(jsonData&&jsonData.code==0){
-			// 			var data = jsonData["data"];
-			// 			//先绑定html
-			// 			bindHTML(data);
-			// 			//移除客户
-			// 			removeCustom();
-			// 		}
-			// 	}
-			// })
-			// 
-			// 用jq封装的ajax（）方法也是可以的！！！！但是原生的更好？？
-			$.ajax({
+			ajax({
 				url:"/getList",
-				success:function(jsonData){
-					var data = jsonData["data"];
-					bindHTML(data);
-					removeCustom();
+				success:function (jsonData) {
+					console.log(jsonData);
+					if(jsonData&&jsonData.code==0){
+						var data = jsonData["data"];
+						//先绑定html
+						bindHTML(data);
+						//移除客户
+						removeCustom();
+					}
 				}
 			})
+			// 
+			// 用jq封装的ajax（）方法也是可以的！！！！但是原生的更好？？
+			// $.ajax({
+			// 	url:"/getList",
+			// 	success:function(jsonData){
+			// 		var data = jsonData["data"];
+			// 		bindHTML(data);
+			// 		removeCustom();
+			// 	}
+			// })
 		}
 		return {
 			init:init
