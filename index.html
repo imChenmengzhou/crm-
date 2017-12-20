@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+	<link rel="stylesheet" href="css/index.css" charset="utf-8">
+</head>
+<body>
+    <div class="box">
+    	<a href="add.html" class="link">增加新客户</a>
+    	<h2 class="head">
+    		<span class="w50">编号</span>
+    		<span class="w150">姓名</span>
+    		<span class="w50">年龄</span>
+    		<span class="w200">电话</span>
+    		<span class="w200">地址</span>
+    		<span class="w150">操作</span>
+    	</h2>
+    	<ul class="list" id="list">
+    		<li>
+    			<span class="w50">1</span>
+	    		<span class="w150">xxx</span>
+	    		<span class="w50">24</span>
+	    		<span class="w200">请用node服务器打开该页面</span>
+	    		<span class="w200">xxxxxxxx</span>
+	    		<span class="w150 control">
+	    			<a href="">修改</a>
+	    			<a href="">删除</a>
+	    		</span>
+    		</li>
+    	</ul>
+    </div>
+
+<script type="text/javascript" src="js/ajax.js"></script>
+<script type="text/javascript" src="jquery-3.2.1/jquery-3.2.1.min.js"></script>
+<script type="text/javascript">
+	var oList=document.getElementById("list");
+	//首先获取所有的客户信息，完成页面的数据绑定
+	//利用单例模式和ajax方法
+	var customModule=(function () {
+		//DELETE CUSTOM
+		function removeCustom(){
+			//事件委托
+			oList.onclick=function(e){
+				e=e || window.event;
+				var tar = e.target || e.srcElement;    //获取点击元素
+				// var targetName=tar.targetName.toUpperCase();
+				var tarTag=tar.tagName.toUpperCase();          //将被点击元素a标签名转换为大写
+				if(tarTag==="A"&&tar.innerHTML==="删除"){
+					var customId = tar.getAttribute('customId');
+					var flag = window.confirm('你确定要删除编号为['+customId+']的客户信息吗？');
+					if(flag){
+						ajax({
+							url:"/removeInfo?id="+customId,
+							success:function(jsonData){
+								if(jsonData &&jsonData.code==0){
+									oList.removeChild(tar.parentNode.parentNode);
+									return;
+								}
+								alert(jsonData.msg);
+							}
+						})
+					}
+				}
+			}
+		}
+
+
+
+		//BIND HTML 绑定数据,进行字符串拼接
+		function bindHTML(data) {
+			var str='';
+			for(var i=0;i<data.length;i++){
+				var curData = data[i];
+				str+='<li>';
+				str+='<span class="w50">'+curData["id"]+'</span>';
+				str+='<span class="w150">'+curData["name"]+'</span>';
+				str+='<span class="w50">'+curData["age"]+'</span>';
+				str+='<span class="w200">'+curData["phone"]+'</span>';
+				str+='<span class="w200">'+curData["address"]+'</span>';
+				str+='<span class="w150 control">';
+				str+='<a href="add.html?id='+curData["id"]+'">修改</a>';
+				// 这里的自定义属性最为奇妙
+				str+='<a href="javascript:;" customId='+curData["id"]+'>删除</a>';
+				str+='</span>';
+				str+='</li>';
+			}
+			oList.innerHTML = str;
+		}
+		//send ajax to get data
+		function init() {
+			// ajax({
+			// 	url:"/getList",
+			// 	success:function (jsonData) {
+			// 		console.log(jsonData);
+			// 		if(jsonData&&jsonData.code==0){
+			// 			var data = jsonData["data"];
+			// 			//先绑定html
+			// 			bindHTML(data);
+			// 			//移除客户
+			// 			removeCustom();
+			// 		}
+			// 	}
+			// })
+			// 
+			// 用jq封装的ajax（）方法也是可以的！！！！但是原生的更好？？
+			$.ajax({
+				url:"/getList",
+				success:function(jsonData){
+					var data = jsonData["data"];
+					bindHTML(data);
+					removeCustom();
+				}
+			})
+		}
+		return {
+			init:init
+		};
+	})()
+	customModule.init();
+	
+</script>
+</body>
+</html>

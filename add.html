@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<link rel="stylesheet" type="text/css" href="css/index.css">
+</head>
+<body>
+	<div class="box2">
+		<div>
+			<span>姓名:</span>
+			<input type="text" id="userName">
+		</div>
+		<div>
+			<span>年龄:</span>
+			<input type="text" id="userAge">
+		</div>
+		<div>
+			<span>电话:</span>
+			<input type="text" id="userPhone">
+		</div>
+		<div>
+			<span>地址:</span>
+			<input type="text" id="userAddress">
+		</div>
+		<div class="submit" id="submit">提交</div>
+	</div>
+
+<script type="text/javascript" src="js/ajax.js"></script>
+<script type="text/javascript">
+	//获取url地址栏问号后面的参数值！！！！！网上查询相关方法
+	String.prototype.queryURLParameter=function () {
+		var obj={},
+		       reg=/([^?=&#]+)=([^?=&#]+)/g;
+		this.replace(reg,function () {
+			var key=arguments[1],
+			       value=arguments[2];
+			obj[key]=value;
+		});
+		return obj;
+	};
+
+	
+	var userName=document.getElementById("userName"),
+	       userAge=document.getElementById("userAge"),
+	       userPhone=document.getElementById("userPhone"),
+	       userAddress=document.getElementById("userAddress"),
+	       submit=document.getElementById("submit");
+
+	       //判断一下是修改还是增加，如果url的后面传递了id值，就是修改，否则就是增加！
+	       //这样的话，我们加载页面的第一件事情就是获取url后面传递进来的id值
+	       //http://192.168.0.2:81/add.html>id=2&name=3    ->{id:2,name:3}
+	       //window.location.href=""   //赋值是跳转页面，不赋值就是当前url
+	       
+	       var urlObj = window.location.href.queryURLParameter();
+	       console.log(urlObj);
+	       var customId=urlObj["id"],
+	              isFlag=typeof customId==="undefined" ? false:true;
+	              // alert(isFlag);
+	              //是否为修改操作，false代表增加，true代表修改
+	              //如果是修改的话，我们首先需要把对应客户的详细信息获取到，并且增加到对应的文本框中
+	              if(isFlag){
+	              	ajax({
+	              		url:"/getInfo?id="+customId,
+	              		success:function (jsonData) {
+	              			if(jsonData&&jsonData.code==0){
+	              				var data=jsonData["data"];
+	              				userName.value=data["name"];
+	              				userAge.value=data["age"];
+	              				userPhone.value=data["phone"];
+	              				userAddress.value=data["address"];
+	              			}
+	              		}
+	              	})
+	              }
+
+	              //点击提交按钮的时候不一定是增加，也可能是修改
+	submit.onclick=function () {
+		var obj={
+			name:userName.value,
+			age:userAge.value,
+			phone:userPhone.value,
+			address:userAddress.value
+		};
+		//updata ajax data
+		//修改客户信息
+		if(isFlag){
+			obj.id=customId;
+			ajax({
+				url:"/updateInfo",
+				type:"post",
+				data:JSON.stringify(obj),
+				success:function(jsonData){
+					if (jsonData&&jsonData.code==0){
+						window.location.href="index.html";
+						alert(jsonData.msg)
+						return;
+					}
+					alert(jsonData.msg);
+				}
+			})
+			return;
+		}
+		//add send ajax
+		//增加客户信息
+		obj = JSON.stringify(obj);        //ie6-7不兼容
+		//请求主体中必须是Json格式的字符串
+		ajax({
+			url:"/addInfo",
+			type:"post",
+			data:obj,
+			success:function (jsonData) {
+				if(jsonData&&jsonData.code==0){
+					//成功之后跳转回到首页
+					//js中实现页面跳转的一种方式
+					window.location.href="index.html";
+					alert(jsonData.msg+"000")
+					return;
+				}else{
+					alert(jsonData.msg);
+				}
+			}
+		})
+	}
+
+</script>
+</body>
+</html>

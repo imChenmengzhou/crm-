@@ -1,0 +1,4 @@
+1.在此文件夹下打开命令行窗口
+2.node server1.js
+3.在浏览器打开localhost:800/index.html
+4.执行相关操作即可
